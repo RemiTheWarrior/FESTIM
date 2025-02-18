@@ -243,7 +243,7 @@ def test_callable_x_only():
         lambda t: 100.0 if t < 1 else 0.0,
     ],
 )
-def test_integration_with_HTransportProblem(value):
+def test_integration_with_HydrogenTransportProblem(value):
     """test that different callable functions can be applied to a dirichlet
     boundary condition, asserting in each case they match an expected value"""
     subdomain = F.SurfaceSubdomain1D(1, x=1)
@@ -358,7 +358,7 @@ def test_species_predefined():
         (1.0, lambda x, t: ufl.conditional(ufl.lt(t, 1.0), 100.0 + x[0], 0.0)),
     ],
 )
-def test_integration_with_a_multispecies_HTransportProblem(value_A, value_B):
+def test_integration_with_a_multispecies_HydrogenTransportProblem(value_A, value_B):
     """test that a mixture of callable functions can be applied to dirichlet
     boundary conditions in a multispecies case, asserting in each case they
     match an expected value"""

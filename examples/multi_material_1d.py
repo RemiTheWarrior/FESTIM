@@ -2,7 +2,8 @@ import numpy as np
 
 import festim as F
 
-my_model = F.HTransportProblemDiscontinuous()
+my_model = F.HydrogenTransportProblemDiscontinuous()
+my_model.method_interface = "nietsche"
 
 interface_1 = 0.5
 interface_2 = 0.7

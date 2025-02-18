@@ -56,7 +56,8 @@ def test_vtx_suffix_converter(tmpdir):
 
 def test_vtx_DG(tmpdir):
     """Test VTX export setup for DG formulation"""
-    my_model = F.HTransportProblemDiscontinuous()
+    my_model = F.HydrogenTransportProblemDiscontinuous()
+    my_model.method_interface = "nietsche"
     my_model.mesh = F.Mesh1D(vertices=np.array([0.0, 1.0, 2.0, 3.0, 4.0]))
     my_mat = F.Material(D_0=3, E_D=2, K_S_0=1, E_K_S=0, name="mat")
 

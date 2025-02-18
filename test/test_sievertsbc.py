@@ -81,7 +81,7 @@ def test_create_new_value_function(pressure):
         lambda t, x: ufl.conditional(ufl.lt(t, 1.0), 100.0 * x[0], 0.0),
     ],
 )
-def test_integration_with_HTransportProblem(pressure):
+def test_integration_with_HydrogenTransportProblem(pressure):
     subdomain = F.SurfaceSubdomain1D(1, x=1)
     dummy_mat = F.Material(1.0, 1.0, "dummy")
     vol_subdomain = F.VolumeSubdomain1D(1, borders=[0, 1], material=dummy_mat)

@@ -2,8 +2,8 @@ import numpy as np
 
 import festim as F
 
-my_model = F.HTransportProblemDiscontinuous()
-
+my_model = F.HydrogenTransportProblemDiscontinuous()
+my_model.method_interface = "nietsche"
 
 N = 1500
 vertices = np.linspace(0, 1, num=N)

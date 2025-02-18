@@ -103,8 +103,8 @@ def test_run():
         right_surface,
     ]
 
-    H = F.SpeciesChangeVar("H", mobile=True)
-    trapped_H = F.SpeciesChangeVar("H_trapped", mobile=False)
+    H = F.Species("H", mobile=True)
+    trapped_H = F.Species("H_trapped", mobile=False)
     empty_trap = F.ImplicitSpecies(n=0.5, others=[trapped_H])
 
     my_model.species = [H, trapped_H]
@@ -193,7 +193,7 @@ def test_2_materials_2d_mms():
         bottom_surface,
     ]
 
-    H = F.SpeciesChangeVar("H", mobile=True)
+    H = F.Species("H", mobile=True)
 
     my_model.species = [H]
 

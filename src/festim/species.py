@@ -49,11 +49,11 @@ class Species:
             function spaces
 
     Usage:
-        >>> from festim import Species, HTransportProblem
+        >>> from festim import Species, HydrogenTransportProblem
         >>> species = Species(name="H")
         >>> species.name
         'H'
-        >>> my_model = HTransportProblem()
+        >>> my_model = HydrogenTransportProblem()
         >>> my_model.species.append(species)
 
     """
@@ -65,6 +65,7 @@ class Species:
     subdomain_to_post_processing_solution: dict
     subdomain_to_collapsed_function_space: dict
     subdomain_to_function_space: dict
+    change_var: bool = False
 
     def __init__(self, name: str = None, mobile=True, subdomains=None) -> None:
         self.name = name
@@ -92,7 +93,14 @@ class Species:
 
     @property
     def concentration(self):
-        return self.solution
+        if self.change_var:
+            return self._concentration
+        else:
+            return self.solution
+
+    @concentration.setter
+    def concentration(self, value):
+        self._concentration = value
 
     @property
     def legacy(self) -> bool:
@@ -225,13 +233,3 @@ def find_species_from_name(name: str, species: list):
         if spe.name == name:
             return spe
     raise ValueError(f"Species {name} not found in list of species")
-
-
-class SpeciesChangeVar(Species):
-    @property
-    def concentration(self):
-        return self._concentration
-
-    @concentration.setter
-    def concentration(self, value):
-        self._concentration = value

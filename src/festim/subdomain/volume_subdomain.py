@@ -60,7 +60,7 @@ class VolumeSubdomain:
         Creates the following attributes: ``.parent_mesh``, ``.submesh``, ``.submesh_to_mesh``,
         ``.v_map``, ``padded``, and the entity map ``parent_to_submesh``.
 
-        Only used in ``festim.HTransportProblemDiscontinuous``
+        Only used in ``festim.HydrogenTransportProblemDiscontinuous``
 
         Args:
             mesh (dolfinx.mesh.Mesh): the parent mesh

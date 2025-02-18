@@ -37,8 +37,8 @@ def test_write(tmp_path):
     assert os.path.exists(filename)
 
 
-def test_integration_with_HTransportProblem(tmp_path):
-    """Tests that XDMFExport can be used in conjunction with HTransportProblem"""
+def test_integration_with_HydrogenTransportProblem(tmp_path):
+    """Tests that XDMFExport can be used in conjunction with HydrogenTransportProblem"""
     my_model = F.HydrogenTransportProblem()
     my_model.mesh = F.Mesh1D(vertices=np.linspace(0, 1))
     my_mat = F.Material(D_0=1.9e-7, E_D=0.2, name="my_mat")

@@ -63,7 +63,8 @@ def generate_mesh():
 
 mesh, mt, ct = generate_mesh()
 
-my_model = F.HTransportProblemDiscontinuous()
+my_model = F.HydrogenTransportProblemDiscontinuous()
+my_model.method_interface = "nietsche"
 my_model.mesh = F.Mesh(mesh)
 my_model.volume_meshtags = ct
 my_model.facet_meshtags = mt
