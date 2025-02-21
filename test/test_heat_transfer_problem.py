@@ -603,7 +603,6 @@ def test_adaptive_timestepping_shrinks():
         (lambda t: t, [1.0, 2.0, 3.0]),
         (lambda t: 1.0 + t, [2.0, 3.0, 4.0]),
         (lambda x, t: 1.0 + x[0] + t, [6.0, 7.0, 8.0]),
-        (lambda T, t: T + 2 * t, [12.0, 14.0, 16.0]),
         (
             lambda x, t: ufl.conditional(ufl.lt(t, 1.5), 100.0 + x[0], 0.0),
             [104.0, 0.0, 0.0],

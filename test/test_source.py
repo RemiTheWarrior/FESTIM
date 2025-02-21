@@ -22,32 +22,11 @@ def test_init():
 
     # check that the attributes are set correctly
     assert source.volume == volume
-    assert source.value == value
     assert source.species == species
-    assert source.value_fenics is None
-    assert source.source_expr is None
 
-
-def test_value_fenics():
-    """Test that the value_fenics attribute can be set to a valid value
-    and that an invalid type throws an error
-    """
-    # create a Source object
-    volume = F.VolumeSubdomain1D(id=1, borders=[0, 1], material=dummy_mat)
-    value = 1.0
-    species = F.Species("test")
-    source = F.ParticleSource(volume=volume, value=value, species=species)
-
-    # set the value_fenics attribute to a valid value
-    value_fenics = fem.Constant(mesh, 2.0)
-    source.value_fenics = value_fenics
-
-    # check that the value_fenics attribute is set correctly
-    assert source.value_fenics == value_fenics
-
-    # set the value_fenics attribute to an invalid value
-    with pytest.raises(TypeError):
-        source.value_fenics = "invalid"
+    # check value is processed correctly
+    assert source.value.input_value == value
+    assert isinstance(source.value, F.Value)
 
 
 @pytest.mark.parametrize(
@@ -66,13 +45,13 @@ def test_value_fenics():
         ),
     ],
 )
-def test_create_value_fenics(value, expected_type):
-    """Test that the create value method produces either a fem.Constant or
-    fem.Function depending on the value input"""
+def test_create_fenics_object(value, expected_type):
+    """Test that the correct fenics object is created depending on the value input"""
 
     # BUILD
     vol_subdomain = F.VolumeSubdomain1D(1, borders=[0, 1], material=dummy_mat)
     species = F.Species("test")
+    V = fem.functionspace(mesh, ("Lagrange", 1))
 
     source = F.ParticleSource(volume=vol_subdomain, value=value, species=species)
 
@@ -80,11 +59,13 @@ def test_create_value_fenics(value, expected_type):
     t = fem.Constant(mesh, 0.0)
 
     # RUN
-    source.create_value_fenics(mesh, T, t)
+    source.value.convert_input_value(
+        function_space=V, mesh=mesh, temperature=T, t=t, up_to_ufl_expr=True
+    )
 
     # TEST
     # check that the value_fenics attribute is set correctly
-    assert isinstance(source.value_fenics, expected_type)
+    assert isinstance(source.value.fenics_object, expected_type)
 
 
 @pytest.mark.parametrize(
@@ -107,7 +88,7 @@ def test_source_time_dependent_attribute(input, expected_value):
     species = F.Species("test")
     my_source = F.ParticleSource(input, volume, species)
 
-    assert my_source.time_dependent is expected_value
+    assert my_source.value.time_dependent is expected_value
 
 
 @pytest.mark.parametrize(
@@ -132,7 +113,7 @@ def test_source_temperature_dependent_attribute(input, expected_value):
     species = F.Species("test")
     my_source = F.ParticleSource(input, volume, species)
 
-    assert my_source.temperature_dependent is expected_value
+    assert my_source.value.temperature_dependent is expected_value
 
 
 def test_ValueError_raised_when_callable_returns_wrong_type():
@@ -154,7 +135,9 @@ def test_ValueError_raised_when_callable_returns_wrong_type():
         ValueError,
         match="self.value should return a float or an int, not <class 'ufl.conditional.Conditional'",
     ):
-        source.create_value_fenics(mesh, T, t)
+        source.value.convert_input_value(
+            mesh=mesh, temperature=T, t=t, up_to_ufl_expr=True
+        )
 
 
 def test_ValueError_raised_when_callable_returns_wrong_type_heat_source():
@@ -174,7 +157,7 @@ def test_ValueError_raised_when_callable_returns_wrong_type_heat_source():
         ValueError,
         match="self.value should return a float or an int, not <class 'ufl.conditional.Conditional'",
     ):
-        source.create_value_fenics(mesh, t)
+        source.value.convert_input_value(mesh=mesh, t=t, up_to_ufl_expr=True)
 
 
 @pytest.mark.parametrize(

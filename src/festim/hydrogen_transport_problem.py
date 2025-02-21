@@ -21,6 +21,7 @@ from festim import (
 from festim import (
     reaction as _reaction,
 )
+from festim import source as _source
 from festim import (
     species as _species,
 )
@@ -30,7 +31,7 @@ from festim import (
 from festim.helpers import as_fenics_constant
 from festim.mesh import Mesh
 
-__all__ = ["HydrogenTransportProblem", "HTransportProblemDiscontinuous"]
+__all__ = ["HTransportProblemDiscontinuous", "HydrogenTransportProblem"]
 
 
 class HydrogenTransportProblem(problem.ProblemBase):
@@ -615,11 +616,13 @@ class HydrogenTransportProblem(problem.ProblemBase):
         """For each source create the value_fenics"""
         for source in self.sources:
             # create value_fenics for all F.ParticleSource objects
-            if isinstance(source, festim.source.ParticleSource):
-                source.create_value_fenics(
+            if isinstance(source, _source.ParticleSource):
+                source.value.convert_input_value(
                     mesh=self.mesh.mesh,
-                    temperature=self.temperature_fenics,
+                    function_space=self.function_space,
                     t=self.t,
+                    temperature=self.temperature_fenics,
+                    up_to_ufl_expr=True,
                 )
 
     def create_flux_values_fenics(self):
@@ -713,7 +716,7 @@ class HydrogenTransportProblem(problem.ProblemBase):
         # add sources
         for source in self.sources:
             self.formulation -= (
-                source.value_fenics
+                source.value.fenics_object
                 * source.species.test_function
                 * self.dx(source.volume.id)
             )
@@ -783,8 +786,8 @@ class HydrogenTransportProblem(problem.ProblemBase):
                     bc.update(t=t)
 
         for source in self.sources:
-            if source.temperature_dependent:
-                source.update(t=t)
+            if source.value.temperature_dependent:
+                source.value.update(t=t)
 
     def post_processing(self):
         """Post processes the model"""
@@ -1054,6 +1057,21 @@ class HTransportProblemDiscontinuous(HydrogenTransportProblem):
             name = f"{species.name}_{subdomain.id}"
             species.subdomain_to_post_processing_solution[subdomain].name = name
 
+    def create_source_values_fenics(self):
+        """For each source create the value_fenics"""
+        for source in self.sources:
+            # create value_fenics for all F.ParticleSource objects
+            if isinstance(source, _source.ParticleSource):
+                V = dolfinx.fem.functionspace(self.mesh.mesh, ("Lagrange", 1))
+
+                source.value.convert_input_value(
+                    mesh=self.mesh.mesh,
+                    function_space=V,
+                    t=self.t,
+                    temperature=self.temperature_fenics,
+                    up_to_ufl_expr=True,
+                )
+
     def create_subdomain_formulation(self, subdomain: _subdomain.VolumeSubdomain):
         """
         Creates the variational formulation for each subdomain and stores it in ``subdomain.F``
@@ -1123,7 +1141,7 @@ class HTransportProblemDiscontinuous(HydrogenTransportProblem):
         for source in self.sources:
             v = source.species.subdomain_to_test_function[subdomain]
             if source.volume == subdomain:
-                form -= source.value_fenics * v * self.dx(subdomain.id)
+                form -= source.value.fenics_object * v * self.dx(subdomain.id)
 
         # store the form in the subdomain object
         subdomain.F = form

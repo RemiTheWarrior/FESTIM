@@ -193,5 +193,5 @@ class ProblemBase:
                 bc.update(t=t)
 
         for source in self.sources:
-            if source.time_dependent:
-                source.update(t=t)
+            if source.value.time_dependent:
+                source.value.update(t=t)

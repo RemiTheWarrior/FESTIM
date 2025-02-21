@@ -104,7 +104,7 @@ class HydrogenTransportProblemDiscontinuousChangeVar(HydrogenTransportProblem):
         # add sources
         for source in self.sources:
             self.formulation -= (
-                source.value_fenics
+                source.value.fenics_object
                 * source.species.test_function
                 * self.dx(source.volume.id)
             )
